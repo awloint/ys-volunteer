@@ -30,6 +30,7 @@ $twitterHandle = $_POST['twitterHandle'];
 $instagramHandle = $_POST['instagramHandle'];
 $facebookHandle = $_POST['facebookHandle'];
 $familiarHandles = $_POST['familiarHandles'];
+$unit = $_POST['unit'];
 $reasonForVolunteering = $_POST['reasonForVolunteering'];
 
 $name = $firstName . " " . $lastName;
@@ -46,36 +47,76 @@ $details = array(
     "instagramHandle" => $_POST['instagramHandle'],
     "facebookHandle" => $_POST['facebookHandle'],
     "familiarHandles" => $_POST['familiarHandles'],
+    "unit"        => $_POST['unit'],
     "reasonForVolunteering" => $_POST['reasonForVolunteering'],
 );
 $emails = array(
     array(
             "email"         =>  $email,
             "variables"     =>  array(
-            "phone"         =>  $phone,
-            "name"          =>  $firstName,
-            "middleName"    =>  $middleName,
-            "lastName"      =>  $lastName,
-            "familiarHandles"        =>  $familiarHandles,
-            "reasonForVolunteering" => $reasonForVolunteering,
+            "firstName"         =>  $firstName,
+            "middleName"          =>  $middleName,
+            "lastName"    =>  $lastName,
+            "phone"      =>  $phone,
+            "location"        =>  $familiarHandles,
+            "linkedinHandle"          => $linkedinHandle,
+            "twitterHandle" => $twitterHnadle,
+            "instagramHandle" => $instagramHandle,
+            "facebookHandle" => $facebookHandle,
+            "familiarHandles" => $familiarHandles,
+            "unit"            => $unit,
+            "reasonForVolunteering" => $reasonForVolunteering
             )
     )
 );
 $db = new DB($host, $db, $username, $password);
 
 $notify = new Notify($smstoken, $emailHost, $emailUsername, $emailPassword, $SMTPDebug, $SMTPAuth, $SMTPSecure, $Port);
+
 $newsletter = new Newsletter($apiUserId, $apiSecret);
 
-// Check if the person has signed up to volunteer before
-if($db->userExists($email, "awlcrwanda_volunteers")) {
+// First check to see if the user is in the Database
+if ($db->userExists($email, "iys_participation")) {
     echo json_encode("user_exists");
-}
-// Put the User into the Database
-if ($db->insertUser("awlcrwanda_volunteers", $details)) {
-    $notify->viaEmail("volunteer@awlo.org", "Volunter at African Women in Leadership Organisation", $email, $name, $emailBodyVolunteer, "Thanks for Signing Up to Be Our Media Volunteer");
-    $notify->viaEmail("volunteer@awlo.org", "Volunteer at African Women in Leadership Organisation", "volunteer@awlo.org", "Admin", $emailBodyOrganisation, "New Social Media Volunteer SignUp");
-    $notify->viaSMS("AWLOInt", "Dear {$firstName} {$lastName}, Thank you for volunteering and sharing your good heart with us. Kindly check your email for the next steps. Cheers!", $phone);
-    $notify->viaSMS("AWLOInt", "A Social Media Volunteer just signedup for the AWLCRwanda2019. Kindly check your email for the details.", "08037594969,08022473972");
-    $newsletter->insertIntoList("2309698", $emails);
-    echo json_encode("success");
+} else {
+    // Insert the user into the database
+    $db->getConnection()->beginTransaction();
+    $db->insertUser("iys_volunteer", $details);
+        // Send SMS
+        $notify->viaSMS("YouthSummit", "Dear {$firstName} {$lastName}, thank you for registering to be a part of AWLO Youth Summit in commemoration of the International Youth Day. We look forward to receiving you. Kindly check your mail for more details. Thank you.", $phone);
+
+        /**
+         * Add User to the SendPulse Mail List
+         */
+        $emails = array(
+            array(
+                'email'             => $email,
+                'variables'         => array(
+                    'name'          => $firstName,
+                    'middleName'    => $middleName,
+                    'lastName'      => $lastName,
+                    'phone'         => $phone,
+                    'location'        => $gender,
+                    'linkedinHandle'          => $linkedinHandle,
+                    'twitterHandle' =>$twitterHandle,
+                    'instagramHandle' =>$instagramHandle,
+                    'facebookHandle' =>$facebookHandle,
+                    'familiarHandles' => $familiarHandles,
+                    'unit'            => $unit,
+                    'reasonForVolunteering' => $reasonForVolunteering,
+                )
+            )
+        );
+
+        $newsletter->insertIntoList("228660", $emails);
+
+        $name = $firstName . ' ' . $lastName;
+        // Send Email
+        require './emails.php';
+        // Send Email
+        $notify->viaEmail("youthsummit@awlo.org", "AWLO Youth Summit", $email, $name, $emailBody, "AWLO International Youth Summit");
+
+        $db->getConnection()->commit();
+
+        echo json_encode("success");
 }

@@ -79,6 +79,7 @@ $emailBodyOrganisation = "<table style='background-color: #d5d5d5;' border='0' w
 <strong>Instagram Handle: </strong> {$instagramHandle} <br>
 <strong>Facebook Handle: </strong> {$facebookHandle} <br>
 <strong>Which of these social media handles are you most conversant with? : </strong> {$familiarHandles} <br>
+<strong>What unit would you like to Volunteer in?: </strong> {$unit} <br>
 <strong>Why do you want to volunteer?: </strong> {$reasonForVolunteering} <br>
 </p>
 <p>Warm Regards,</p>
