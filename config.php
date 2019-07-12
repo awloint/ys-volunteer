@@ -16,7 +16,7 @@ $db = 'AWLCRwanda2019';
 $username = 'root';
 $password = 'anitapc';
 // SMS Configuration
-$smstoken = 'CQxlc2gLTWCUUdsunjsTrqb19FP8QcZ0BD3HybQWATlOg4t9QQ1aP40I73sL';
+$smstoken = 's2EpyQl989Jm8QdjKs0FbtIkpoOVKrPjZCfzsDnW5wBz0mKsewYTyRpr7JgV';
 // Email Configuration
 $emailHost = 'mail.awlo.org';
 $emailUsername = 'anita@awlo.org';
@@ -26,6 +26,6 @@ $SMTPAuth = true;
 $SMTPSecure = 'ssl';
 $Port = 465;
 // API credentials from https://login.sendpulse.com/settngs/#api
-$apiUserId = 'f8ae10fb413129f719ee777ad865d098';
-$apiSecret = '7558e174e5bb77887c40803ee4c2e099';
+$apiUserId = '2b111126c7e6bfe91321de7f47ff7ebe';
+$apiSecret = '2f74e50fbf0bb8513f11cccfcadf8f0a';
 define('PATH_TO_ATTACH_FILE', __FILE__);

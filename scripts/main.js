@@ -63,7 +63,7 @@ document.addEventListener('DOMContentLoaded', e => {
         const formdata = new FormData(form)
 
         // Initiate a fetch call
-        fetch('scripts/processor.php', {
+        fetch('scripts/processor.php',{
             method: 'post',
             body: formdata
         })
