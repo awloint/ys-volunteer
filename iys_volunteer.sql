@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Jul 13, 2019 at 11:55 AM
+-- Generation Time: Jul 13, 2019 at 03:43 PM
 -- Server version: 5.7.26-0ubuntu0.18.04.1
 -- PHP Version: 7.2.19-0ubuntu0.18.04.1
 
@@ -41,7 +41,7 @@ CREATE TABLE `iys_volunteer` (
   `familiarHandles` text NOT NULL,
   `unit` text NOT NULL,
   `reasonForVolunteering` text NOT NULL,
-  `created_at` datetime NOT NULL
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf16;
 
 --

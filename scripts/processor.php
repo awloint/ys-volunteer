@@ -10,8 +10,8 @@
  * @license  MIT https://opensource.org/licenses/MIT
  * @link     https://stbensonimoh.com
  */
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+//error_reporting(E_ALL);
+//ini_set('display_errors', 1);
 
 // echo json_encode($_POST);
 
@@ -33,24 +33,24 @@ $instagramHandle = $_POST['instagramHandle'];
 $facebookHandle = $_POST['facebookHandle'];
 $familiarHandles = $_POST['familiarHandles'];
 $unit = $_POST['unit'];
-$reasonForVolunteering = $_POST['reasonForVolunteering'];
+$reasonForVolunteering = htmlspecialchars($_POST['reasonForVolunteering'], ENT_QUOTES);
 
 $name = $firstName . " " . $lastName;
 require './emails.php';
 $details = array(
-    "firstName" => $_POST['firstName'],
-    "middleName" => $_POST['middleName'],
-    "lastName" => $_POST['lastName'],
-    "email" => $_POST['email'],
-    "phone" => $_POST['phone'],
-    "location" => $_POST['location'],
-    "linkedinHandle" => $_POST['linkedinHandle'],
-    "twitterHandle" => $_POST['twitterHandle'],
-    "instagramHandle" => $_POST['instagramHandle'],
-    "facebookHandle" => $_POST['facebookHandle'],
-    "familiarHandles" => $_POST['familiarHandles'],
-    "unit"        => $_POST['unit'],
-    "reasonForVolunteering" => $_POST['reasonForVolunteering'],
+    "firstName" => $firstName,
+    "middleName" => $middleName,
+    "lastName" => $lastName,
+    "email" => $email,
+    "phone" => $phone,
+    "location" => $location,
+    "linkedinHandle" => $linkedinHandle,
+    "twitterHandle" => $twitterHandle,
+    "instagramHandle" => $instagramHandle,
+    "facebookHandle" => $facebookHandle,
+    "familiarHandles" => $familiarHandles,
+    "unit"        => $unit,
+    "reasonForVolunteering" => $reasonForVolunteering
 );
 $emails = array(
     array(
@@ -66,8 +66,7 @@ $emails = array(
             "instagramHandle" => $instagramHandle,
             "facebookHandle" => $facebookHandle,
             "familiarHandles" => $familiarHandles,
-            "unit"            => $unit,
-            "reasonForVolunteering" => $reasonForVolunteering
+            "unit"            => $unit
             )
     )
 );
@@ -78,14 +77,14 @@ $notify = new Notify($smstoken, $emailHost, $emailUsername, $emailPassword, $SMT
 $newsletter = new Newsletter($apiUserId, $apiSecret);
 
 // First check to see if the user is in the Database
-if ($db->userExists($email, "iys_participation")) {
+if ($db->userExists($email, "iysvolunteer")) {
     echo json_encode("user_exists");
 } else {
     // Insert the user into the database
     $db->getConnection()->beginTransaction();
-    $db->insertUser("iys_volunteer", $details);
+    $db->insertUser("iysvolunteer", $details);
         // Send SMS
-        $notify->viaSMS("YouthSummit", "Dear {$firstName} {$lastName}, thank you for registering to be a part of AWLO Youth Summit in commemoration of the International Youth Day. We look forward to receiving you. Kindly check your mail for more details. Thank you.", $phone);
+        $notify->viaSMS("YouthSummit", "Dear {$firstName} {$lastName}, Thank you for volunteering and sharing your good heart with us. Kindly check your email for the next steps. Cheers!", $phone);
 
         /**
          * Add User to the SendPulse Mail List
@@ -98,14 +97,14 @@ if ($db->userExists($email, "iys_participation")) {
                     'middleName'    => $middleName,
                     'lastName'      => $lastName,
                     'phone'         => $phone,
-                    'location'        => $gender,
+                    'location'       =>$location,
                     'linkedinHandle'          => $linkedinHandle,
                     'twitterHandle' =>$twitterHandle,
                     'instagramHandle' =>$instagramHandle,
                     'facebookHandle' =>$facebookHandle,
                     'familiarHandles' => $familiarHandles,
                     'unit'            => $unit,
-                    'reasonForVolunteering' => $reasonForVolunteering,
+                    'reasonForVolunteering' => $reasonForVolunteering
                 )
             )
         );
@@ -116,7 +115,7 @@ if ($db->userExists($email, "iys_participation")) {
         // Send Email
         require './emails.php';
         // Send Email
-        $notify->viaEmail("youthsummit@awlo.org", "AWLO Youth Summit", $email, $name, $emailBody, "AWLO International Youth Summit");
+        $notify->viaEmail("youthsummit@awlo.org", "AWLO Youth Summit", $email, $name, $emailBodyVolunteer, "AWLO International Youth Summit");
 
         $db->getConnection()->commit();
 
