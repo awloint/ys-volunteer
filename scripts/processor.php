@@ -13,6 +13,8 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
+// echo json_encode($_POST);
+
 // Require Classes
 require '../config.php';
 require './DB.php';
@@ -60,7 +62,7 @@ $emails = array(
             "phone"      =>  $phone,
             "location"        =>  $familiarHandles,
             "linkedinHandle"          => $linkedinHandle,
-            "twitterHandle" => $twitterHnadle,
+            "twitterHandle" => $twitterHandle,
             "instagramHandle" => $instagramHandle,
             "facebookHandle" => $facebookHandle,
             "familiarHandles" => $familiarHandles,
