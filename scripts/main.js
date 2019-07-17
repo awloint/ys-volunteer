@@ -63,7 +63,7 @@ document.addEventListener('DOMContentLoaded', e => {
         const formdata = new FormData(form)
 
         // Initiate a fetch call
-        fetch('scripts/processor.php', {
+        fetch('scripts/processor.php',{
             method: 'post',
             body: formdata
         })
@@ -71,7 +71,7 @@ document.addEventListener('DOMContentLoaded', e => {
                 return response.json()
             })
             .then(data => {
-                // console.log(data)
+                 console.log(data)
                 if (data === 'user_exists') {
                     swal(
                         'Already Registered',

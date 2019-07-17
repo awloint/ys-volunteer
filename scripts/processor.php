@@ -10,8 +10,10 @@
  * @license  MIT https://opensource.org/licenses/MIT
  * @link     https://stbensonimoh.com
  */
-// error_reporting(E_ALL);
-// ini_set('display_errors', 1);
+//error_reporting(E_ALL);
+//ini_set('display_errors', 1);
+
+// echo json_encode($_POST);
 
 // Require Classes
 require '../config.php';
@@ -30,52 +32,92 @@ $twitterHandle = $_POST['twitterHandle'];
 $instagramHandle = $_POST['instagramHandle'];
 $facebookHandle = $_POST['facebookHandle'];
 $familiarHandles = $_POST['familiarHandles'];
-$reasonForVolunteering = $_POST['reasonForVolunteering'];
+$unit = $_POST['unit'];
+$reasonForVolunteering = htmlspecialchars($_POST['reasonForVolunteering'], ENT_QUOTES);
 
 $name = $firstName . " " . $lastName;
 require './emails.php';
 $details = array(
-    "firstName" => $_POST['firstName'],
-    "middleName" => $_POST['middleName'],
-    "lastName" => $_POST['lastName'],
-    "email" => $_POST['email'],
-    "phone" => $_POST['phone'],
-    "location" => $_POST['location'],
-    "linkedinHandle" => $_POST['linkedinHandle'],
-    "twitterHandle" => $_POST['twitterHandle'],
-    "instagramHandle" => $_POST['instagramHandle'],
-    "facebookHandle" => $_POST['facebookHandle'],
-    "familiarHandles" => $_POST['familiarHandles'],
-    "reasonForVolunteering" => $_POST['reasonForVolunteering'],
+    "firstName" => $firstName,
+    "middleName" => $middleName,
+    "lastName" => $lastName,
+    "email" => $email,
+    "phone" => $phone,
+    "location" => $location,
+    "linkedinHandle" => $linkedinHandle,
+    "twitterHandle" => $twitterHandle,
+    "instagramHandle" => $instagramHandle,
+    "facebookHandle" => $facebookHandle,
+    "familiarHandles" => $familiarHandles,
+    "unit"        => $unit,
+    "reasonForVolunteering" => $reasonForVolunteering
 );
 $emails = array(
     array(
             "email"         =>  $email,
             "variables"     =>  array(
-            "phone"         =>  $phone,
-            "name"          =>  $firstName,
-            "middleName"    =>  $middleName,
-            "lastName"      =>  $lastName,
-            "familiarHandles"        =>  $familiarHandles,
-            "reasonForVolunteering" => $reasonForVolunteering,
+            "firstName"         =>  $firstName,
+            "middleName"          =>  $middleName,
+            "lastName"    =>  $lastName,
+            "phone"      =>  $phone,
+            "location"        =>  $familiarHandles,
+            "linkedinHandle"          => $linkedinHandle,
+            "twitterHandle" => $twitterHandle,
+            "instagramHandle" => $instagramHandle,
+            "facebookHandle" => $facebookHandle,
+            "familiarHandles" => $familiarHandles,
+            "unit"            => $unit
             )
     )
 );
 $db = new DB($host, $db, $username, $password);
 
 $notify = new Notify($smstoken, $emailHost, $emailUsername, $emailPassword, $SMTPDebug, $SMTPAuth, $SMTPSecure, $Port);
+
 $newsletter = new Newsletter($apiUserId, $apiSecret);
 
-// Check if the person has signed up to volunteer before
-if($db->userExists($email, "awlcrwanda_volunteers")) {
+// First check to see if the user is in the Database
+if ($db->userExists($email, "iysvolunteer")) {
     echo json_encode("user_exists");
-}
-// Put the User into the Database
-if ($db->insertUser("awlcrwanda_volunteers", $details)) {
-    $notify->viaEmail("volunteer@awlo.org", "Volunter at African Women in Leadership Organisation", $email, $name, $emailBodyVolunteer, "Thanks for Signing Up to Be Our Media Volunteer");
-    $notify->viaEmail("volunteer@awlo.org", "Volunteer at African Women in Leadership Organisation", "volunteer@awlo.org", "Admin", $emailBodyOrganisation, "New Social Media Volunteer SignUp");
-    $notify->viaSMS("AWLOInt", "Dear {$firstName} {$lastName}, Thank you for volunteering and sharing your good heart with us. Kindly check your email for the next steps. Cheers!", $phone);
-    $notify->viaSMS("AWLOInt", "A Social Media Volunteer just signedup for the AWLCRwanda2019. Kindly check your email for the details.", "08037594969,08022473972");
-    $newsletter->insertIntoList("2309698", $emails);
-    echo json_encode("success");
+} else {
+    // Insert the user into the database
+    $db->getConnection()->beginTransaction();
+    $db->insertUser("iysvolunteer", $details);
+        // Send SMS
+        $notify->viaSMS("YouthSummit", "Dear {$firstName} {$lastName}, Thank you for volunteering and sharing your good heart with us. Kindly check your email for the next steps. Cheers!", $phone);
+
+        /**
+         * Add User to the SendPulse Mail List
+         */
+        $emails = array(
+            array(
+                'email'             => $email,
+                'variables'         => array(
+                    'name'          => $firstName,
+                    'middleName'    => $middleName,
+                    'lastName'      => $lastName,
+                    'phone'         => $phone,
+                    'location'       =>$location,
+                    'linkedinHandle'          => $linkedinHandle,
+                    'twitterHandle' =>$twitterHandle,
+                    'instagramHandle' =>$instagramHandle,
+                    'facebookHandle' =>$facebookHandle,
+                    'familiarHandles' => $familiarHandles,
+                    'unit'            => $unit,
+                    'reasonForVolunteering' => $reasonForVolunteering
+                )
+            )
+        );
+
+        $newsletter->insertIntoList("228660", $emails);
+
+        $name = $firstName . ' ' . $lastName;
+        // Send Email
+        require './emails.php';
+        // Send Email
+        $notify->viaEmail("youthsummit@awlo.org", "AWLO Youth Summit", $email, $name, $emailBodyVolunteer, "AWLO International Youth Summit");
+
+        $db->getConnection()->commit();
+
+        echo json_encode("success");
 }
